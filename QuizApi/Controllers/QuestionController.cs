@@ -14,25 +14,36 @@ namespace QuizApi.Controllers
     [ApiController]
     public class QuestionController : ControllerBase
     {
-        private readonly QuizDatabaseContext _context;
+        private readonly QuizDatabaseContext _db;
 
         public QuestionController(QuizDatabaseContext context)
         {
-            _context = context;
+            _db = context;
         }
 
         // GET: api/Question
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Question>>> GetQuestions()
         {
-            return await _context.Questions.ToListAsync();
+            var questions = await _db.Questions
+                .Select(x => new
+                {
+                    QuestionId = x.QuestionId,
+                    QuestionName = x.QuestionName,
+                    QuestionImage = x.QuestionImage,
+                    Options = new string[] { x.Option1, x.Option2, x.Option3, x.Option4 }
+                })
+                .OrderBy(y => Guid.NewGuid())
+                .Take(5)
+                .ToListAsync();
+            return Ok(questions);
         }
 
         // GET: api/Question/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Question>> GetQuestion(int id)
         {
-            var question = await _context.Questions.FindAsync(id);
+            var question = await _db.Questions.FindAsync(id);
 
             if (question == null)
             {
@@ -52,11 +63,11 @@ namespace QuizApi.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(question).State = EntityState.Modified;
+            _db.Entry(question).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _db.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,8 +89,8 @@ namespace QuizApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Question>> PostQuestion(Question question)
         {
-            _context.Questions.Add(question);
-            await _context.SaveChangesAsync();
+            _db.Questions.Add(question);
+            await _db.SaveChangesAsync();
 
             return CreatedAtAction("GetQuestion", new { id = question.QuestionId }, question);
         }
@@ -88,21 +99,21 @@ namespace QuizApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteQuestion(int id)
         {
-            var question = await _context.Questions.FindAsync(id);
+            var question = await _db.Questions.FindAsync(id);
             if (question == null)
             {
                 return NotFound();
             }
 
-            _context.Questions.Remove(question);
-            await _context.SaveChangesAsync();
+            _db.Questions.Remove(question);
+            await _db.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool QuestionExists(int id)
         {
-            return _context.Questions.Any(e => e.QuestionId == id);
+            return _db.Questions.Any(e => e.QuestionId == id);
         }
     }
 }
