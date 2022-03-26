@@ -84,7 +84,8 @@ namespace QuizApi.Controllers
             {
                 _context.Participants.Add(participant);
                 await _context.SaveChangesAsync();
-            }else
+            }
+            else
                 participant = temp;
 
             return Ok(participant);
