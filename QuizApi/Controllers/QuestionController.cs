@@ -84,15 +84,22 @@ namespace QuizApi.Controllers
             return NoContent();
         }
 
-        // POST: api/Question
+        // POST: api/Question/getanswers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Question>> PostQuestion(Question question)
+        [Route("GetAnswers")]
+        public async Task<ActionResult<Question>> RetrieveAnswer(int[] questionIds)
         {
-            _db.Questions.Add(question);
-            await _db.SaveChangesAsync();
-
-            return CreatedAtAction("GetQuestion", new { id = question.QuestionId }, question);
+            var answers = await (_db.Questions.Where(i => questionIds.Contains(i.QuestionId))
+                .Select(x => new
+                {
+                    QuestionId = x.QuestionId,
+                    QuestionName = x.QuestionName,
+                    QuestionImage = x.QuestionImage,
+                    Options = new string[] { x.Option1, x.Option2, x.Option3, x.Option4 },
+                    Answer = x.Answer
+                })).ToListAsync();
+            return Ok(answers);
         }
 
         // DELETE: api/Question/5
