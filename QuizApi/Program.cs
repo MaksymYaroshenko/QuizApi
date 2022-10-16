@@ -1,6 +1,6 @@
+using DAL.DbConnection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
-using QuizApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

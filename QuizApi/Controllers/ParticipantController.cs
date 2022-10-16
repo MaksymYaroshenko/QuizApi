@@ -1,7 +1,8 @@
 ﻿#nullable disable
+using DAL.DbConnection;
+using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QuizApi.Models;
 
 namespace QuizApi.Controllers
 {

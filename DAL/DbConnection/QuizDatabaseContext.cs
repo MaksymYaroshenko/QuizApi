@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DAL.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace QuizApi.Models
+namespace DAL.DbConnection
 {
     public class QuizDatabaseContext:DbContext
     {
@@ -9,5 +10,6 @@ namespace QuizApi.Models
 
         public DbSet<Question> Questions { get; set; }
         public DbSet<Participant> Participants { get; set; }
+        public DbSet<EmailStatistic> EmailStatistics { get; set; }
     }
 }
