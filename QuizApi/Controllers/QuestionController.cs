@@ -1,5 +1,6 @@
 ﻿#nullable disable
 using DAL.DbConnection;
+using DAL.Interfaces;
 using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,28 +11,18 @@ namespace QuizApi.Controllers
     [ApiController]
     public class QuestionController : ControllerBase
     {
-        private readonly QuizDatabaseContext _db;
+        private readonly IQuestionRepository _questionRepository;
 
-        public QuestionController(QuizDatabaseContext context)
+        public QuestionController(IQuestionRepository questionRepository)
         {
-            _db = context;
+            _questionRepository = questionRepository;
         }
 
         // GET: api/Question
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Question>>> GetQuestions()
         {
-            var questions = await _db.Questions
-                .Select(x => new
-                {
-                    QuestionId = x.QuestionId,
-                    QuestionName = x.QuestionName,
-                    QuestionImage = x.QuestionImage,
-                    Options = new string[] { x.Option1, x.Option2, x.Option3, x.Option4 }
-                })
-                .OrderBy(y => Guid.NewGuid())
-                .Take(5)
-                .ToListAsync();
+            var questions = await _questionRepository.GetQuestions();
             return Ok(questions);
         }
 
@@ -39,7 +30,7 @@ namespace QuizApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Question>> GetQuestion(int id)
         {
-            var question = await _db.Questions.FindAsync(id);
+            var question = await _questionRepository.GetQuestion(id);
 
             if (question == null)
             {
@@ -49,74 +40,13 @@ namespace QuizApi.Controllers
             return question;
         }
 
-        // PUT: api/Question/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutQuestion(int id, Question question)
-        {
-            if (id != question.QuestionId)
-            {
-                return BadRequest();
-            }
-
-            _db.Entry(question).State = EntityState.Modified;
-
-            try
-            {
-                await _db.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!QuestionExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
         // POST: api/Question/getanswers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Route("GetAnswers")]
         public async Task<ActionResult<Question>> RetrieveAnswer(int[] questionIds)
         {
-            var answers = await (_db.Questions.Where(i => questionIds.Contains(i.QuestionId))
-                .Select(x => new
-                {
-                    QuestionId = x.QuestionId,
-                    QuestionName = x.QuestionName,
-                    QuestionImage = x.QuestionImage,
-                    Options = new string[] { x.Option1, x.Option2, x.Option3, x.Option4 },
-                    Answer = x.Answer
-                })).ToListAsync();
-            return Ok(answers);
-        }
-
-        // DELETE: api/Question/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteQuestion(int id)
-        {
-            var question = await _db.Questions.FindAsync(id);
-            if (question == null)
-            {
-                return NotFound();
-            }
-
-            _db.Questions.Remove(question);
-            await _db.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool QuestionExists(int id)
-        {
-            return _db.Questions.Any(e => e.QuestionId == id);
+            return Ok(await _questionRepository.RetrieveAnswer(questionIds));
         }
     }
 }

@@ -1,4 +1,6 @@
 using DAL.DbConnection;
+using DAL.Interfaces;
+using DAL.Repositories.Questions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
@@ -13,6 +15,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<QuizDatabaseContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DevConnection")));
+
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+
 var app = builder.Build();
 
 app.UseCors(options =>
