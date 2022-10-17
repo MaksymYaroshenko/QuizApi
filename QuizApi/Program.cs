@@ -1,5 +1,6 @@
 using DAL.DbConnection;
 using DAL.Interfaces;
+using DAL.Repositories.Participants;
 using DAL.Repositories.Questions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -17,6 +18,7 @@ builder.Services.AddDbContext<QuizDatabaseContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DevConnection")));
 
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<IParticipantRepository, ParticipantRepository>();
 
 var app = builder.Build();
 
