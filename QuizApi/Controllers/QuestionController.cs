@@ -1,9 +1,7 @@
 ﻿#nullable disable
-using DAL.DbConnection;
 using DAL.Interfaces;
 using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace QuizApi.Controllers
 {
@@ -24,20 +22,6 @@ namespace QuizApi.Controllers
         {
             var questions = await _questionRepository.GetQuestions();
             return Ok(questions);
-        }
-
-        // GET: api/Question/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Question>> GetQuestion(int id)
-        {
-            var question = await _questionRepository.GetQuestion(id);
-
-            if (question == null)
-            {
-                return NotFound();
-            }
-
-            return question;
         }
 
         // POST: api/Question/getanswers
